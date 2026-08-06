@@ -1,0 +1,57 @@
+#include <stdlib.h>
+
+// Helper function to count total nodes for memory allocation
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* postorderTraversal(struct TreeNode* root, int* returnSize) {
+    *returnSize = countNodes(root);
+    if (*returnSize == 0) {
+        return NULL;
+    }
+
+    int* result = (int*)malloc((*returnSize) * sizeof(int));
+    
+    // Explicit stack to store node pointers
+    struct TreeNode** stack = (struct TreeNode**)malloc((*returnSize) * sizeof(struct TreeNode*));
+    int top = -1;
+    int index = 0;
+
+    // Start with the root node
+    stack[++top] = root;
+
+    // Traverse in Root -> Right -> Left order
+    while (top >= 0) {
+        struct TreeNode* current = stack[top--];
+        result[index++] = current->val;
+
+        // Push left child first so right child is processed first (LIFO)
+        if (current->left != NULL) {
+            stack[++top] = current->left;
+        }
+        if (current->right != NULL) {
+            stack[++top] = current->right;
+        }
+    }
+
+    // Reverse the result array to get Left -> Right -> Root order
+    int left = 0;
+    int right = index - 1;
+    while (left < right) {
+        int temp = result[left];
+        result[left] = result[right];
+        result[right] = temp;
+        left++;
+        right--;
+    }
+
+    // Clean up stack memory
+    free(stack);
+
+    return result;
+}
