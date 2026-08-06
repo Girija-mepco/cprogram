@@ -1,0 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    // Buffer array to safely store a single string word segment at a time
+    char word[1000];
+    
+    // Continuously read single words separated by whitespaces until End Of File (EOF)
+    while (scanf("%s", word) != EOF) {
+        // Output the captured word onto a distinct clean line string structure
+        printf("%s\n", word);
+    }
+    
+    return 0;
+}
