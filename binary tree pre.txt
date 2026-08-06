@@ -1,0 +1,36 @@
+#include <stdlib.h>
+
+// Helper function to count total nodes for memory allocation
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+// Helper function to perform the actual preorder traversal
+void traverse(struct TreeNode* root, int* result, int* index) {
+    if (root == NULL) return;
+    
+    result[(*index)++] = root->val;       // Visit Root First
+    traverse(root->left, result, index);  // Then Visit Left
+    traverse(root->right, result, index); // Finally Visit Right
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* preorderTraversal(struct TreeNode* root, int* returnSize) {
+    // 1. Find total nodes to allocate exact memory
+    *returnSize = countNodes(root);
+    
+    if (*returnSize == 0) {
+        return NULL;
+    }
+    
+    int* result = (int*)malloc((*returnSize) * sizeof(int));
+    int index = 0;
+    
+    // 2. Populate the array using preorder traversal
+    traverse(root, result, &index);
+    
+    return result;
+}

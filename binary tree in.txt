@@ -1,0 +1,38 @@
+#include <stdlib.h>
+
+// REMOVED: struct TreeNode definition is already provided by the platform.
+
+// Helper function to count total nodes for memory allocation
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+// Helper function to perform the actual inorder traversal
+void traverse(struct TreeNode* root, int* result, int* index) {
+    if (root == NULL) return;
+    
+    traverse(root->left, result, index);  // Visit Left
+    result[(*index)++] = root->val;       // Visit Root
+    traverse(root->right, result, index); // Visit Right
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* inorderTraversal(struct TreeNode* root, int* returnSize) {
+    // 1. Find total nodes to allocate exact memory
+    *returnSize = countNodes(root);
+    
+    if (*returnSize == 0) {
+        return NULL;
+    }
+    
+    int* result = (int*)malloc((*returnSize) * sizeof(int));
+    int index = 0;
+    
+    // 2. Populate the array using inorder traversal
+    traverse(root, result, &index);
+    
+    return result;
+}
