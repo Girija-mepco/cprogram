@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define HASH_SIZE 10007 // A prime size for efficient bucket distribution
+typedef struct {
+    int *indices;
+    int size;
+    int capacity;
+} IndexArray;
+typedef struct HashNode {
+    int key;
+    IndexArray valArray;
+    struct HashNode *next;
+} HashNode;
+typedef struct {
+    HashNode **buckets;
+} RangeFreqQuery;
+int getHash(int key) {
+    int hash = key % HASH_SIZE;
+    if (hash < 0) hash += HASH_SIZE;
+    return hash;
+}
+int lowerBound(int *arr, int size, int target) {
+    int low = 0, high = size;
+    while (low < high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] >= target) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return low;
+}
+int upperBound(int *arr, int size, int target) {
+    int low = 0, high = size;
+    while (low < high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] <= target) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+RangeFreqQuery* rangeFreqQueryCreate(int* arr, int arrSize) {
+    RangeFreqQuery *obj = (RangeFreqQuery*)malloc(sizeof(RangeFreqQuery));
+    obj->buckets = (HashNode**)calloc(HASH_SIZE, sizeof(HashNode*));
+    
+    for (int i = 0; i < arrSize; i++) {
+        int val = arr[i];
+        int bucket = getHash(val);
+        
+        // Search if key already exists in the bucket
+        HashNode *curr = obj->buckets[bucket];
+        while (curr != NULL && curr->key != val) {
+            curr = curr->next;
+        }
+        
+        // If key doesn't exist, create a new hash node
+        if (curr == NULL) {
+            curr = (HashNode*)malloc(sizeof(HashNode));
+            curr->key = val;
+            curr->valArray.size = 0;
+            curr->valArray.capacity = 4;
+            curr->valArray.indices = (int*)malloc(curr->valArray.capacity * sizeof(int));
+            curr->next = obj->buckets[bucket];
+            obj->buckets[bucket] = curr;
+        }
+        
+        // Append index to the matching dynamic array
+        if (curr->valArray.size >= curr->valArray.capacity) {
+            curr->valArray.capacity *= 2;
+            curr->valArray.indices = (int*)realloc(curr->valArray.indices, curr->valArray.capacity * sizeof(int));
+        }
+        curr->valArray.indices[curr->valArray.size++] = i;
+    }
+    
+    return obj;
+}
+
+// Frequency query execution
+int rangeFreqQueryQuery(RangeFreqQuery* obj, int left, int right, int value) {
+    int bucket = getHash(value);
+    HashNode *curr = obj->buckets[bucket];
+    
+    // Find the node corresponding to the target value
+    while (curr != NULL && curr->key != value) {
+        curr = curr->next;
+    }
+    
+    // If the value never appeared in the entire array, its frequency is 0
+    if (curr == NULL) {
+        return 0;
+    }
+    
+    int size = curr->valArray.size;
+    int *arr = curr->valArray.indices;
+    
+    // Binary search for boundaries
+    int left_idx = lowerBound(arr, size, left);
+    int right_idx = upperBound(arr, size, right);
+    
+    // The number of indices within the range [left, right]
+    return right_idx - left_idx;
+}
+
+// Free allocated memory
+void rangeFreqQueryFree(RangeFreqQuery* obj) {
+    for (int i = 0; i < HASH_SIZE; i++) {
+        HashNode *curr = obj->buckets[i];
+        while (curr != NULL) {
+            HashNode *temp = curr;
+            curr = curr->next;
+            free(temp->valArray.indices);
+            free(temp);
+        }
+    }
+    free(obj->buckets);
+    free(obj);
+}
