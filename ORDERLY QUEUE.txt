@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+// Comparison function for qsort to sort characters in ascending order
+int compareChars(const void *a, const void *b) {
+    return (*(char *)a - *(char *)b);
+}
+
+char* orderlyQueue(char* s, int k) {
+    int n = strlen(s);
+    
+    // Case 1: If k > 1, we can fully sort the string
+    if (k > 1) {
+        char* sorted_s = malloc((n + 1) * sizeof(char));
+        strcpy(sorted_s, s);
+        qsort(sorted_s, n, sizeof(char), compareChars);
+        return sorted_s;
+    }
+    
+    // Case 2: If k == 1, we find the lexicographically smallest rotation
+    char* smallest_rotation = malloc((n + 1) * sizeof(char));
+    strcpy(smallest_rotation, s);
+    
+    // Temporary buffer to hold and compare each rotation
+    char* current_rotation = malloc((n + 1) * sizeof(char));
+    strcpy(current_rotation, s);
+    
+    for (int i = 1; i < n; i++) {
+        // Rotate the string by 1 position: shift left and append first char to end
+        char first = current_rotation[0];
+        memmove(current_rotation, current_rotation + 1, n - 1);
+        current_rotation[n - 1] = first;
+        
+        // Keep the lexicographically smaller string
+        if (strcmp(current_rotation, smallest_rotation) < 0) {
+            strcpy(smallest_rotation, current_rotation);
+        }
+    }
+    
+    free(current_rotation);
+    return smallest_rotation;
+}
