@@ -1,0 +1,36 @@
+int findMin(int* nums, int numsSize) {
+    int left = 0;
+    int right = numsSize - 1;
+    
+    // If the array is not rotated at all, the first element is the minimum
+    if (nums[left] <= nums[right]) {
+        return nums[left];
+    }
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        // If the element to the right of mid is smaller, it's the inflection point (minimum)
+        if (mid + 1 < numsSize && nums[mid] > nums[mid + 1]) {
+            return nums[mid + 1];
+        }
+        
+        // If mid itself is smaller than its left neighbor, mid is the minimum
+        if (mid - 1 >= 0 && nums[mid - 1] > nums[mid]) {
+            return nums[mid];
+        }
+        
+        // Decide whether to search the left or right inflection zone
+        if (nums[mid] > nums[left]) {
+            // Left half is sorted, inflection point lies in the right half
+            left = mid + 1;
+        } else {
+            // Right half is sorted, inflection point lies in the left half
+            right = mid - 1;
+        }
+    }
+    
+    return nums[left];
+}
+
+
