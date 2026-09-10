@@ -1,0 +1,38 @@
+#include <stdlib.h>
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    int* result = (int*)malloc(2 * sizeof(int));
+    *returnSize = 2;
+    typedef struct {
+        int key;
+        int value;
+    } HashEntry;
+    int hashSize = numsSize * 2;
+    HashEntry* hashTable = (HashEntry*)calloc(hashSize, sizeof(HashEntry));
+    int* occupied = (int*)calloc(hashSize, sizeof(int));
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        unsigned int hashIdx = abs(complement) % hashSize;
+        while (occupied[hashIdx]) {
+            if (hashTable[hashIdx].key == complement) {
+                result[0] = hashTable[hashIdx].value;
+                result[1] = i;
+                free(hashTable);
+                free(occupied);
+                return result;
+            }
+            hashIdx = (hashIdx + 1) % hashSize;
+        }
+        unsigned int currIdx = abs(nums[i]) % hashSize;
+        while (occupied[currIdx]) {
+            currIdx = (currIdx + 1) % hashSize;
+        }
+        hashTable[currIdx].key = nums[i];
+        hashTable[currIdx].value = i;
+        occupied[currIdx] = 1;
+    }
+    free(hashTable);
+    free(occupied);
+    *returnSize = 0;
+    return NULL;
+}
+
