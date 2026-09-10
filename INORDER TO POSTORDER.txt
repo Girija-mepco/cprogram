@@ -1,0 +1,40 @@
+// Helper function to build the tree recursively
+struct TreeNode* buildTreeHelper(int* inorder, int inStart, int inEnd, 
+                                 int* postorder, int postStart, int postEnd) {
+    // Base case: if the range is invalid, return NULL
+    if (inStart > inEnd || postStart > postEnd) {
+        return NULL;
+    }
+
+    // 1. The last element in postorder is the root node of the current subtree
+    int rootVal = postorder[postEnd];
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val = rootVal;
+    root->left = NULL;
+    root->right = NULL;
+
+    // 2. Find the index of the root value in the inorder array
+    int rootIdx = inStart;
+    while (rootIdx <= inEnd && inorder[rootIdx] != rootVal) {
+        rootIdx++;
+    }
+
+    // 3. Calculate the size of the left subtree
+    int leftTreeSize = rootIdx - inStart;
+
+    // 4. Recursively build the left and right subtrees
+    root->left = buildTreeHelper(inorder, inStart, rootIdx - 1, 
+                                 postorder, postStart, postStart + leftTreeSize - 1);
+
+    root->right = buildTreeHelper(inorder, rootIdx + 1, inEnd, 
+                                  postorder, postStart + leftTreeSize, postEnd - 1);
+
+    return root;
+}
+
+struct TreeNode* buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize) {
+    if (inorderSize == 0 || postorderSize == 0) {
+        return NULL;
+    }
+    return buildTreeHelper(inorder, 0, inorderSize - 1, postorder, 0, postorderSize - 1);
+}
