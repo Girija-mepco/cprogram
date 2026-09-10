@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+int countPrimes(int n) {
+    if (n <= 2) {
+        return 0;
+    }
+
+    // Allocate an array to track only ODD numbers.
+    // Index 'i' will represent the odd number (2 * i + 1)
+    // Size needed is n / 2
+    int size = n / 2;
+    bool* isNotPrime = (bool*)calloc(size, sizeof(bool));
+    if (isNotPrime == NULL) {
+        return 0;
+    }
+
+    // Start with 1 to account for the prime number 2
+    int count = 1; 
+
+    // Sieve of Eratosthenes - processing only odd numbers
+    for (int i = 3; i * i < n; i += 2) {
+        // Map the odd number 'i' to our array index: index = i / 2
+        if (!isNotPrime[i / 2]) {
+            // Mark multiples of i starting from i * i
+            // The step is 2 * i to stay on odd multiples (e.g., 3*3=9, 9+6=15, 15+6=21...)
+            for (int j = i * i; j < n; j += 2 * i) {
+                isNotPrime[j / 2] = true;
+            }
+        }
+    }
+
+    // Count the remaining unmarked odd numbers
+    for (int i = 3; i < n; i += 2) {
+        if (!isNotPrime[i / 2]) {
+            count++;
+        }
+    }
+
+    free(isNotPrime);
+    return count;
+}
