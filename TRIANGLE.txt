@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Helper macro to find the minimum of two values
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+int minimumTotal(int** triangle, int triangleSize, int* triangleColSize) {
+    // Start from the second-to-last row and move upwards to the top
+    for (int row = triangleSize - 2; row >= 0; row--) {
+        for (int col = 0; col < triangleColSize[row]; col++) {
+            // The minimum path to the current position is its own value plus 
+            // the minimum of the two adjacent values directly below it.
+            triangle[row][col] += MIN(triangle[row + 1][col], triangle[row + 1][col + 1]);
+        }
+    }
+    
+    // The top element now contains the minimum path sum for the entire triangle
+    return triangle[0][0];
+}
