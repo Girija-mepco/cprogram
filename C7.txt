@@ -1,0 +1,39 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <limits.h>
+
+bool find132pattern(int* nums, int numsSize) {
+    if (numsSize < 3) {
+        return false;
+    }
+
+    // Stack to store potential nums[j] values
+    int* stack = (int*)malloc(sizeof(int) * numsSize);
+    int top = -1;
+
+    // nums[k] represents the '2' in the '132' pattern.
+    // It should be as large as possible while still smaller than a chosen nums[j].
+    int numK = INT_MIN;
+
+    // Traverse the array from right to left
+    for (int i = numsSize - 1; i >= 0; i--) {
+        // If we find a number smaller than nums[k], a 132 pattern is found (nums[i] < nums[k] < nums[j])
+        if (nums[i] < numK) {
+            free(stack);
+            return true;
+        }
+
+        // Maintain a monotonic decreasing stack. 
+        // If the current number is larger than the stack's top, it qualifies as a potential nums[j].
+        // The popped element becomes the new, larger nums[k].
+        while (top >= 0 && nums[i] > stack[top]) {
+            numK = stack[top--];
+        }
+
+        // Push the current element onto the stack as a potential nums[j]
+        stack[++top] = nums[i];
+    }
+
+    free(stack);
+    return false;
+}
