@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+struct triangle
+{
+	int a;
+	int b;
+	int c;
+};
+
+typedef struct triangle triangle;
+void sort_by_area(triangle* tr, int n)  {
+    // Array to store the squared area for each triangle
+    double* areas = malloc(n * sizeof(double));
+    
+    // Calculate Heron's formula for each triangle (skipping sqrt for precision)
+    for (int i = 0; i < n; i++) {
+        double p = (tr[i].a + tr[i].b + tr[i].c) / 2.0;
+        areas[i] = p * (p - tr[i].a) * (p - tr[i].b) * (p - tr[i].c);
+    }
+    
+    // Bubble sort to sort both the areas and the triangle structures
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (areas[j] > areas[j + 1]) {
+                // Swap area values
+                double temp_area = areas[j];
+                areas[j] = areas[j + 1];
+                areas[j + 1] = temp_area;
+                
+                // Swap actual triangle structs
+                triangle temp_tr = tr[j];
+                tr[j] = tr[j + 1];
+                tr[j + 1] = temp_tr;
+            }
+        }
+    }
+    
+    free(areas);
+}
+
+
+double calculate_area_squared(triangle tr) {
+    double p = (tr.a + tr.b + tr.c) / 2.0;
+    return p * (p - tr.a) * (p - tr.b) * (p - tr.c);
+}
+
+// Comparison function for sorting
+int compare_triangles(const void *a, const void *b) {
+    triangle *t1 = (triangle *)a;
+    triangle *t2 = (triangle *)b;
+    
+    double area1 = calculate_area_squared(*t1);
+    double area2 = calculate_area_squared(*t2);
+    
+    if (area1 < area2) return -1;
+    if (area1 > area2) return 1;
+    return 0;
+}
