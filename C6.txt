@@ -1,0 +1,24 @@
+#include <stdio.h>
+
+int minSubArrayLen(int target, int* nums, int numsSize) {
+    int min_len = numsSize + 1; // Initialize with a value larger than any possible subarray length
+    int current_sum = 0;
+    int left = 0;
+
+    for (int right = 0; right < numsSize; right++) {
+        current_sum += nums[right];
+
+        // Shrink the window from the left as long as the condition is met
+        while (current_sum >= target) {
+            int current_len = right - left + 1;
+            if (current_len < min_len) {
+                min_len = current_len;
+            }
+            current_sum -= nums[left];
+            left++;
+        }
+    }
+
+    // If min_len was never updated, it means no valid subarray was found
+    return (min_len == numsSize + 1) ? 0 : min_len;
+}
